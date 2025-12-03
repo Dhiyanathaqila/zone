@@ -16,7 +16,7 @@ class TimeConverterLog {
         file_put_contents($this->file, $text . PHP_EOL, FILE_APPEND); // Append baris ke file
     }
 
-    // Membaca semua baris log, dibalik urutannya agar yang terbaru di atas sini yaaaa
+    // Membaca semua baris log, dibalik urutannya agar yang terbaru di atas sini yaaaa  
     public function readAll() {
         return file_exists($this->file)
             ? array_reverse(file($this->file, FILE_IGNORE_NEW_LINES)) // Jika ada file, baca dan balik
@@ -30,7 +30,7 @@ class TimeConverterLog {
 }
 
 /* BUAT OBJEK UNTUK DIPAKAI DI PROGRAM */
-$Log = new TimeConverterLog(__DIR__ . "/history.txt"); // Inisialisasi objek log
+$Log = new TimeConverterLog(__DIR__ . "/history.txt"); // Inisialisasi objek log disini
 
 /* LIST ZONA WAKTU */
 $zones = [
