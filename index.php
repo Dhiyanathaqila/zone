@@ -1,39 +1,34 @@
 <?php
 session_start();
 
-/* OOP Sederhana untuk Mengelola Riwayat*/
+/* OOP Sederhana untuk Mengelola Riwayat (method)*/
 class TimeConverterLog {
-    // Menyimpan path file riwayat
     private $file;
-
-    // Konstruktor menerima lokasi file untuk log
+    // lokasi file untuk log
     public function __construct($filePath) {
         $this->file = $filePath; 
     }
-
-    // Menambah baris riwayat baru ke dalam file
+    // Tambah baris riwayat baru ke dalam file
     public function add($text) {
         file_put_contents($this->file, $text . PHP_EOL, FILE_APPEND); 
     }
-
-    // Membaca semua baris log, dibalik urutannya agar yang terbaru di atas sini  
+    // Membaca semua baris log, stack  
     public function readAll() {
         return file_exists($this->file)
             ? array_reverse(file($this->file, FILE_IGNORE_NEW_LINES)) 
             : []; 
     }
-
     // Menghapus seluruh isi file riwayat
     public function clear() {
         file_put_contents($this->file, ""); 
     }
 }
 
-/* BUAT OBJEK UNTUK DIPAKAI DI PROGRAM */
+/* BUAT OBJEK Method  */
 $Log = new TimeConverterLog(__DIR__ . "/history.txt"); // Inisialisasi objek log 
 
 /* LIST ZONA WAKTU */
-$zones = [
+/* array string */ $zones = [
     "Asia/Jakarta"        => "Jakarta (UTC+7)",
     "Asia/Makassar"       => "Makassar (UTC+8)",
     "Asia/Jayapura"       => "Jayapura (UTC+9)",
@@ -47,45 +42,43 @@ $zones = [
     "Asia/Kolkata"        => "India (UTC+5:30)"
 ];
 
-$history_file = __DIR__ . "/history.txt"; // Path file riwayat
+/*string*/ $history_file = __DIR__ . "/history.txt"; // Path file riwayat
 
-/* FUNGSI HITUNG OFFSET */
+/* FUNCTION HITUNG OFFSET */
 function zone_offset($zone) {
     $tz = new DateTimeZone($zone); // Buat object zona waktu
     return $tz->getOffset(new DateTime()); 
 }
 
-/* INISIAL OUTPUT */
+/* INISIAL OUTPUT string */
 $convert_output = ""; 
 $calendar_html  = ""; 
 $daydiff_html   = ""; 
 $format_output  = "";
 
 /* PROSES KONVERSI */
-if (isset($_POST['convert'])) { 
+if (isset($_POST['convert'])) { /*bool*/
 
     // ambil input
-    $from = $_POST['from_zone']; 
+    /*st*/ $from = $_POST['from_zone']; 
     $to   = $_POST['to_zone'];   
     $date = $_POST['date_input']; 
-    $time = $_POST['time_input'] ?: "00:00"; 
+    /*st*/ $time = $_POST['time_input'] ?: "00:00"; 
 
-    $input = "$date $time"; // Gabungkan tanggal dan waktu
+    $input = "$date $time"; 
 
-    // DETEKSI ZONA SAMA
+    // DETEKSI ZONA SAMA (KONDISI)
     if ($from === $to) { 
         $convert_output = "<div class='output' style='border-left-color:#ff9800'>
             ⚠️ Zona waktu asal dan tujuan sama — tidak ada perubahan waktu.</div>";
     } else {
-        // Buat tanggal asal
         $dt = new DateTime($input, new DateTimeZone($from)); 
 
-        // Clone + ubah ke zona target
         $dt2 = clone $dt; 
         $dt2->setTimezone(new DateTimeZone($to)); 
 
         /* HITUNG SELISIH ZONA WAKTU */
-        $offset_from = zone_offset($from) / 3600; 
+       /* float */ $offset_from = zone_offset($from) / 3600; 
         $offset_to   = zone_offset($to)   / 3600; 
         $selisih_jam = $offset_to - $offset_from; 
         $selisih_format = ($selisih_jam >= 0 ? "+" : "") . $selisih_jam . " jam"; 
@@ -104,7 +97,7 @@ if (isset($_POST['convert'])) {
         </table>
         ";
         
-        /* Deteksi perubahan hari */
+        /* Deteksi perubahan hari (KONDISI) */
         $hari_asal = $dt->format("Y-m-d");
         $hari_tuju = $dt2->format("Y-m-d");
 
@@ -128,8 +121,8 @@ if (isset($_POST['convert'])) {
     $Log->add($line);
 
     /* MINI CALENDAR */
-    if (isset($dt2)) { // Jika hasil konversi valid
-        $y = (int)$dt2->format("Y");
+    if (isset($dt2)) { // Jika hasil konversi valid int
+        $y = (int)$dt2->format("Y"); 
         $m = (int)$dt2->format("m"); 
         $selected = (int)$dt2->format("d"); 
 
@@ -141,6 +134,7 @@ if (isset($_POST['convert'])) {
         $calendar_html .= "<table class='mini-calendar'>";
         $calendar_html .= "<tr><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th><th>Min</th></tr><tr>";
 
+        /*loop*/
         for ($i=1; $i<$start_weekday; $i++) $calendar_html .= "<td></td>"; 
 
         for ($d=1; $d<=$days_in_month; $d++) {
@@ -269,7 +263,7 @@ if (isset($_POST['custom_format_btn'])) {
         Tukar
     </button>
 
-    <!-- Zona waktu tujuan -->
+    <!-- Zona waktu tujuan (loop) -->
     <select name="to_zone" required style="padding-right:90px;"> 
         <?php foreach ($zones as $k => $v): 
             // KOMENTAR: Mempertahankan pilihan setelah submit
@@ -311,28 +305,28 @@ if (isset($_POST['custom_format_btn'])) {
 <section class="card">
     <h2>⏳ Format Waktu Custom</h2>
 
-    <!-- Form waktu dengan format pilihan -->
     <form method="POST" class="form-grid">
+    <!-- Hidden input agar tidak perlu mengulang pilihan zona & tanggal -->
+    <input type="hidden" name="from_zone" value="<?= htmlspecialchars($_POST['from_zone'] ?? 'Asia/Jakarta') ?>">
+    <input type="hidden" name="to_zone" value="<?= htmlspecialchars($_POST['to_zone'] ?? 'Asia/Jakarta') ?>">
+    <input type="hidden" name="date_input" value="<?= htmlspecialchars($_POST['date_input'] ?? date('Y-m-d')) ?>">
+    <input type="hidden" name="time_input" value="<?= htmlspecialchars($_POST['time_input'] ?? '') ?>">
 
-        <!-- Hidden input agar tidak perlu mengulang pilihan zona -->
-        <input type="hidden" name="from_zone" value="<?= htmlspecialchars($_POST['from_zone'] ?? 'Asia/Jakarta') ?>">
-        <input type="hidden" name="to_zone" value="<?= htmlspecialchars($_POST['to_zone'] ?? 'Asia/Jakarta') ?>">
+    <div class="field full">
+        <label>Pilih Format</label>
+        <select name="fmt">
+            <option value="Y-m-d H:i:s">Standar (Y-m-d H:i:s)</option>
+            <option value="d/m/Y H:i">d/m/Y H:i</option>
+            <option value="H:i:s">Jam:Menit:Detik</option>
+            <option value="l, d F Y H:i">Lengkap (Hari, Tanggal)</option>
+        </select>
+    </div>
 
-        <div class="field full">
-            <label>Pilih Format</label>
-            <!-- User memilih format tampilan tanggal -->
-            <select name="fmt">
-                <option value="Y-m-d H:i:s">Standar (Y-m-d H:i:s)</option>
-                <option value="d/m/Y H:i">d/m/Y H:i</option>
-                <option value="H:i:s">Jam:Menit:Detik</option>
-                <option value="l, d F Y H:i">Lengkap (Hari, Tanggal)</option>
-            </select>
-        </div>
+    <div class="field full">
+        <button class="btn" name="custom_format_btn">Tampilkan Format Custom</button>
+    </div>
+</form>
 
-        <div class="field full">
-            <button class="btn" name="custom_format_btn">Tampilkan Format Custom</button>
-        </div>
-    </form>
 
     <!-- Menampilkan output format custom jika ada -->
     <?php if($format_output) echo $format_output; ?>
@@ -359,13 +353,13 @@ if (isset($_POST['custom_format_btn'])) {
 </div>
 
 <script>
-// Menampilkan jam lokal secara real-time
+// Menampilkan jam lokal secara real-time (loop)
 setInterval(()=>{
     const el = document.getElementById("localTime");
     if(el) el.textContent = new Date().toLocaleTimeString("id-ID",{hour12:false});
 },1000);
 
-// Fungsi tukar zona waktu
+// Fungsin tukar zona waktu
 function reverseZones(){
     const a = document.querySelector('[name="from_zone"]');
     const b = document.querySelector('[name="to_zone"]');
