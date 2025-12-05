@@ -1,16 +1,14 @@
 :root{
-    --bg1:#c8b8ff; /* Ini akan diubah oleh JS */
-    --bg2:#aed7ff; /* Ini akan diubah oleh JS */
-    --accent:#8a4fff; /* Warna Ungu Accent statis */
-    --card:#fff; /* Warna Card statis (Putih) */
+    --bg1:#c8b8ff; 
+    --bg2:#aed7ff; 
+    --accent:#8a4fff; 
+    --card:#fff; 
     --muted:#666;
 }
 body{
     font-family:Poppins,sans-serif; 
     margin:0;
-    /* Body menggunakan gradient dari variabel yang akan diubah */
     background:linear-gradient(135deg,var(--bg1),var(--bg2));
-    /* Warna teks body statis (Gelap/Hitam) */
     color:#2b2640; 
 }
 
@@ -18,9 +16,8 @@ body{
     background:var(--card); 
 }
 .btn{
-    background:var(--accent); /* Tetap ungu */
-    color:#fff; /* Teks tombol tetap putih */
-    /* ... */
+    background:var(--accent); 
+    color:#fff; 
 }
 .container{
     max-width:900px;
